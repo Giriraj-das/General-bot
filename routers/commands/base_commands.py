@@ -3,7 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.utils import markdown
 
-from app.kb import start_keyboard
+from routers.kb import start_keyboard
 
 router = Router(name=__name__)
 

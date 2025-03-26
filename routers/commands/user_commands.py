@@ -1,11 +1,11 @@
 from aiogram import Router, types, F
 
-from app.kb import milk_keyboard
+from routers.kb import milk_keyboard
 
 router = Router(name=__name__)
 
 
-@router.message(F.text == 'milk')
+@router.message(F.text.lower() == 'milk')
 async def handle_help(message: types.Message):
     await message.answer(
         text='Select item',
@@ -13,7 +13,7 @@ async def handle_help(message: types.Message):
     )
 
 
-@router.message(F.text == 'weather')
+@router.message(F.text.lower() == 'weather')
 async def handle_help(message: types.Message):
     await message.answer(
         text='Select a city or add it (name and coordinates).',

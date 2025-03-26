@@ -7,8 +7,8 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 }
 params = {
-    'latitude': settings.lat,
-    'longitude': settings.lon,
+    'latitude': settings.weather.latitude,
+    'longitude': settings.weather.longitude,
     'current': 'temperature_2m,precipitation,relative_humidity_2m,rain,wind_direction_10m,wind_speed_10m',
     'timezone': 'Asia/Singapore',
 }
