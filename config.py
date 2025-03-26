@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     )
 
     token: str
+    url: str
+    lat: float
+    lon: float
 
 
 settings = Settings()
