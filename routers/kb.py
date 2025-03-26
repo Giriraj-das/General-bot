@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 def start_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text='weather'), KeyboardButton(text='milk')],
+            [KeyboardButton(text='Weather'), KeyboardButton(text='Milk')],
         ],
         resize_keyboard=True,
         input_field_placeholder='Select item...'
@@ -14,8 +14,8 @@ def start_keyboard() -> ReplyKeyboardMarkup:
 def milk_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text='took'), KeyboardButton(text='sold')],
-            [KeyboardButton(text='monthly report')],
+            [KeyboardButton(text='Took'), KeyboardButton(text='Sold')],
+            [KeyboardButton(text='Monthly report')],
         ],
         resize_keyboard=True,
         input_field_placeholder='Select item...'
