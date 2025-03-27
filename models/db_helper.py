@@ -40,7 +40,7 @@ class DatabaseHelper:
         try:
             yield session
         finally:
-            await session.close()
+            await session.remove()
 
 
 db_helper = DatabaseHelper(
