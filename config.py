@@ -17,8 +17,6 @@ class DatabaseConfig(BaseModel):
 
 class WeatherConfig(BaseModel):
     url: str
-    latitude: float
-    longitude: float
 
 
 class Settings(BaseSettings):
