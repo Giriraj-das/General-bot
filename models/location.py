@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from models import Base
 
@@ -13,8 +12,9 @@ class Location(Base):
     city: Mapped[str]
     latitude: Mapped[float]
     longitude: Mapped[float]
-    user_tg_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
-    user: Mapped['User'] = relationship(
+    # many-to-many relationship to User, bypassing the `UserLocation` class
+    users: Mapped[list['User']] = relationship(
+        secondary='user_location',
         back_populates='locations',
     )

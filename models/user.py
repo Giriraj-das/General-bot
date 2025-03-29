@@ -14,7 +14,8 @@ class User(Base):
     last_name: Mapped[str | None]
     username: Mapped[str | None]
 
+    # many-to-many relationship to Location, bypassing the `UserLocation` class
     locations: Mapped[list['Location']] = relationship(
-        back_populates='user',
-        cascade='all, delete-orphan'
+        secondary='user_location',
+        back_populates='users',
     )
