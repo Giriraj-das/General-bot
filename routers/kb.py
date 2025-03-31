@@ -36,7 +36,7 @@ def cities_keyboard(locations: list[Location]) -> InlineKeyboardMarkup:
     for location in locations:
         rows.append([InlineKeyboardButton(
             text=location.city,
-            callback_data=f'{location.city}-{location.latitude}-{location.longitude}',
+            callback_data=f'{location.city}/{location.latitude}/{location.longitude}',
         )])
 
     rows.append([InlineKeyboardButton(text=f'➕ Add a city', callback_data=add_city)])
