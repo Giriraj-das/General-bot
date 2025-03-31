@@ -14,7 +14,7 @@ class BuyerName(Base):
 class Supply(Base):
     __tablename__ = 'supplies'
 
-    date_time: Mapped[date] = mapped_column(
+    current_date: Mapped[date] = mapped_column(
         default=date.today(),
         server_default=func.current_date(),
     )
