@@ -5,28 +5,45 @@ from sqlalchemy.orm import joinedload
 from models import User, Location
 
 
-async def get_locations_by_user_tg_id(
+async def get_user_by_user_tg_id(
         session: AsyncSession,
         user_tg_id: int,
-) -> list[Location]:
-    stmt = (
+) -> User | None:
+    return await session.scalar(
         select(User)
-        .where(User.user_tg_id == user_tg_id)
         .options(joinedload(User.locations))
+        .where(User.user_tg_id == user_tg_id)
     )
-    user = await session.scalar(stmt)
-
-    return user.locations if user else []
 
 
-# async def create_user(session: AsyncSession, user_data: dict) -> User:
-#     user = User(**user_data)
-#     session.add(user)
-#     await session.commit()
-#     return user
-#
-#
-# async def get_users(session: AsyncSession) -> list[User]:
-#     stmt = select(User).order_by(User.id)
-#     result = await session.scalars(stmt)
-#     return list(result.all())
+async def create_user(
+        session: AsyncSession,
+        user_data: dict[str: str | int],
+) -> User:
+    user = User(**user_data)
+    session.add(user)
+    await session.commit()
+
+    return await session.scalar(
+        select(User)
+        .options(joinedload(User.locations))
+        .where(User.user_tg_id == user.user_tg_id)
+    )
+
+
+async def create_location(
+        session: AsyncSession,
+        user: User,
+        location_data: dict[str: str | float],
+):
+    location: Location | None = await session.scalar(
+        select(Location)
+        .where(Location.city == location_data['city'])
+    )
+    if not location:
+        location = Location(**location_data)
+        session.add(location)
+        await session.flush()
+
+    user.locations.append(location)
+    await session.commit()
