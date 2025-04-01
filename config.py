@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
         env_nested_delimiter='__',
     )
     token: str
+    admin_ids: frozenset[int]
 
     db: DatabaseConfig
     weather: WeatherConfig
