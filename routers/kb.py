@@ -41,3 +41,16 @@ def cities_keyboard(locations: list[Location]) -> InlineKeyboardMarkup:
 
     rows.append([InlineKeyboardButton(text=f'➕ Add a city', callback_data=add_city)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def sales_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text='Murari Mohini (1 liter)',
+            callback_data='Murari Mohini\n1\n100',
+        )],
+        [InlineKeyboardButton(
+            text='Indians (1 liter)',
+            callback_data='Indians\n1\n100',
+        )],
+    ])
