@@ -2,11 +2,12 @@ from datetime import datetime
 from re import Match
 
 from aiogram import Router, types, F
+from aiogram.enums import ParseMode
 from magic_filter import RegexpMode
 
 from config import settings
 from models import Location
-from routers.kb import milk_keyboard, cities_keyboard
+from routers.kb import milk_keyboard, cities_keyboard, sales_keyboard
 from services.milk import create_milk_supply_service
 from services.weather import create_location_service, get_locations_list
 
@@ -25,30 +26,31 @@ async def milk_handler(message: types.Message):
     F.from_user.id.in_(settings.admin_ids),
     F.text.lower() == 'took',
 )
-async def milk_handler(message: types.Message):
+async def milk_took_handler(message: types.Message):
     await message.answer(
         text='Enter only number of liters, if you enter today.\n'
              'Otherwise, date and litres.\n'
              'Example:\n'
-             '25.05.2025 4.45',
+             '    25.05.2025\n'
+             '    4.45',
     )
 
 
 @router.message(
     F.from_user.id.in_(settings.admin_ids),
     F.text.regexp(
-        r'^(\d{2}\.\d{2}\.\d{4}\s+)?\d+(\.\d{1,2})?$',
+        r'^(\d{2}\.\d{2}\.\d{4}\n)?\d+(\.\d{1,2})?$',
         mode=RegexpMode.MATCH,
     ).as_('supply'),
 )
-async def milk_supply_handler(message: types.Message, supply: Match[str]):
-    supply: str = supply.group().strip()
+async def milk_took_getter_handler(message: types.Message, supply: Match[str]):
+    supply: str = supply.group()
     try:
         saved_supply = await create_milk_supply_service(supply=supply)
         await message.answer(
             text='Your input was saved as\n'
-                 f'{datetime.strptime(str(saved_supply.current_date), '%Y-%m-%d').strftime('%d.%m.%Y')} '
-                 f'{saved_supply.quantity}l',
+                 f'{datetime.strptime(str(saved_supply.current_date), '%Y-%m-%d').strftime('%d.%m.%Y')}\n'
+                 f'{saved_supply.quantity} liters',
         )
     except ValueError as e:
         await message.answer(f'❌ {e}')
