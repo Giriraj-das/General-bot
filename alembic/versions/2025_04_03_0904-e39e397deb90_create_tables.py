@@ -1,8 +1,8 @@
 """Create tables
 
-Revision ID: 16daa0776f81
+Revision ID: e39e397deb90
 Revises:
-Create Date: 2025-03-31 16:49:52.043888
+Create Date: 2025-04-03 09:04:33.318909
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "16daa0776f81"
+revision: str = "e39e397deb90"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -40,13 +40,16 @@ def upgrade() -> None:
         "supplies",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
-            "date_time",
+            "current_date",
             sa.Date(),
             server_default=sa.text("(CURRENT_DATE)"),
             nullable=False,
         ),
-        sa.Column("quantity", sa.Float(), nullable=False),
+        sa.Column("quantity", sa.Float(), server_default="0", nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_supplies")),
+        sa.UniqueConstraint(
+            "current_date", name=op.f("uq_supplies_current_date")
+        ),
     )
     op.create_table(
         "users",
@@ -61,7 +64,7 @@ def upgrade() -> None:
         "sales",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("buyer_name_id", sa.Integer(), nullable=False),
-        sa.Column("price", sa.Integer(), server_default="100", nullable=False),
+        sa.Column("price", sa.Integer(), server_default="0", nullable=False),
         sa.Column("quantity", sa.Float(), nullable=False),
         sa.ForeignKeyConstraint(
             ["buyer_name_id"],
