@@ -21,7 +21,7 @@ async def create_location_service(
         location_string: str,
         message: types.Message,
 ):
-    city, latitude, longitude = location_string.split('/')
+    city, latitude, longitude = location_string.split('\n')
     location_data = {
         'city': city,
         'latitude': float(latitude),
