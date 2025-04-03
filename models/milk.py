@@ -15,17 +15,18 @@ class Supply(Base):
     __tablename__ = 'supplies'
 
     current_date: Mapped[date] = mapped_column(
+        unique=True,
         default=date.today(),
         server_default=func.current_date(),
     )
-    quantity: Mapped[float]
+    quantity: Mapped[float] = mapped_column(default=0, server_default='0')
 
     sales: Mapped[list['Sale']] = relationship(secondary='supply_sale', back_populates='supplies')
 
 
 class Sale(Base):
     buyer_name_id: Mapped[int] = mapped_column(ForeignKey('buyer_names.id'))
-    price: Mapped[int] = mapped_column(default=100, server_default='100')
+    price: Mapped[int] = mapped_column(default=0, server_default='0')
     quantity: Mapped[float]
 
     name: Mapped['BuyerName'] = relationship(back_populates='sales')
