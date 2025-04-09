@@ -29,3 +29,44 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           no-cache: true
+
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Decrypt ansible
+        uses: anthonykgross/ansible-vault-cli-github-action@v1
+        with:
+          vault_key: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          command: "ansible-vault decrypt .env.bot"
+      - name: Set rights
+        run: sudo chmod 755 deploy/.env.bot
+      - name: Update docker-compose
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          envsubst '$DOCKERHUB_USERNAME' < docker-compose-bot.yml > tmp.docker-compose-bot.yml
+          mv tmp.docker-compose-bot.yml docker-compose-bot.yml
+      - name: Copy on server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: |
+            docker-compose-bot.yml
+            .env.bot
+          target: "comments"
+          strip_components: 1
+      - name: Run compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd comments
+            docker compose pull
+            docker compose up -d
