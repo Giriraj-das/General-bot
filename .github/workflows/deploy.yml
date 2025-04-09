@@ -68,5 +68,5 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd comments
-            docker compose pull
-            docker compose up -d
+            docker compose -f docker-compose-bot.yml pull
+            docker compose -f docker-compose-bot.yml up -d
