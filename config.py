@@ -21,7 +21,7 @@ class WeatherConfig(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=('.env.bot', '.env'),  # value of next parameter overrides value previous one.
+        env_file=('.env',),  # value of next parameter overrides value previous one.
         case_sensitive=False,
         env_nested_delimiter='__',
     )
