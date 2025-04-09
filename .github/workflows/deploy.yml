@@ -67,4 +67,4 @@ jobs:
           script: |
             cd general-bot
             docker compose pull
-            docker compose -d
+            docker compose up -d
