@@ -42,7 +42,7 @@ jobs:
           vault_key: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
           command: "ansible-vault decrypt .env.bot"
       - name: Set rights
-        run: sudo chmod 755 deploy/.env.bot
+        run: sudo chmod 755 .env.bot
       - name: Update docker-compose
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
