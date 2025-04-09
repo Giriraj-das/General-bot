@@ -40,23 +40,23 @@ jobs:
         uses: anthonykgross/ansible-vault-cli-github-action@v1
         with:
           vault_key: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-          command: "ansible-vault decrypt .env.bot"
+          command: "ansible-vault decrypt deploy/.env"
       - name: Set rights
-        run: sudo chmod 755 .env.bot
+        run: sudo chmod 755 deploy/.env
       - name: Update docker-compose
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          envsubst '$DOCKERHUB_USERNAME' < docker-compose-bot.yml > tmp.docker-compose-bot.yml
-          mv tmp.docker-compose-bot.yml docker-compose-bot.yml
+          envsubst '$DOCKERHUB_USERNAME' < deploy/docker-compose.yml > deploy/tmp.docker-compose.yml
+          mv deploy/tmp.docker-compose.yml deploy/docker-compose.yml
       - name: Copy on server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: "docker-compose-bot.yml,.env.bot"
-          target: "comments"
+          source: "deploy/*"
+          target: "general-bot"
           strip_components: 1
       - name: Run compose
         uses: appleboy/ssh-action@master
@@ -65,6 +65,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd comments
-            docker compose -f docker-compose-bot.yml pull
-            docker compose -f docker-compose-bot.yml up -d
+            cd general-bot
+            docker compose pull
+            docker compose -d
