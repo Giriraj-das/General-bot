@@ -1,0 +1,14 @@
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiogram = "^3.19.0"
+pydantic-settings = "^2.8.1"
+sqlalchemy = "^2.0.40"
+aiosqlite = "^0.21.0"
+
+[tool.poetry.group.dev.dependencies]
+ansible-vault-win = "^1.0.0"
+black = "^25.1.0"
+
