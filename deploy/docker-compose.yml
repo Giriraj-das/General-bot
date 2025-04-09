@@ -3,4 +3,4 @@ services:
     image: ${DOCKERHUB_USERNAME}/general-bot:latest
     restart: always
     env_file:
-      - .env.bot
+      - .env
