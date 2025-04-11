@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class RunConfig(BaseModel):
-    host: str
-    port: int
+    host: str = '0.0.0.0'
+    port: int = 8000
 
 
 class DatabaseConfig(BaseModel):
