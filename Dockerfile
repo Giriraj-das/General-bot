@@ -20,7 +20,7 @@ COPY . .
 
 RUN chmod +x entrypoint.sh
 
-USER bot
+USER deploy
 
 EXPOSE 8000
 CMD ["./entrypoint.sh"]
