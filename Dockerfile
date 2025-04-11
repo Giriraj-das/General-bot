@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-RUN groupadd -g 1001 deploy && useradd -u 1001 -g deploy deploy
+RUN groupadd -g 1001 deploy && useradd -u 1001 -g deploy bot
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY . .
 
 RUN chmod +x entrypoint.sh
 
-USER deploy
+USER bot
 
 EXPOSE 8000
 CMD ["./entrypoint.sh"]
