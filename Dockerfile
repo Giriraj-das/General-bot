@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-RUN groupadd -r bot && useradd -r -g bot bot
+RUN groupadd -r deploy && useradd -r -g deploy bot
 
 WORKDIR /app
 
@@ -17,11 +17,6 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --without dev
 
 COPY . .
-
-RUN mkdir -p /app/data && \
-    chmod 755 /app/data && \
-    chown -R bot:bot /app && \
-    chmod +x entrypoint.sh
 
 USER bot
 
