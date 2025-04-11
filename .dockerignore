@@ -1,3 +1,20 @@
+# Database files
+*.db
+data/*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Git
+.git
+.gitignore
+
+# Docker
+.docker
+docker-compose*.yml
 Dockerfile
 .dockerignore
-.gitignore
+
+# Environment
+.env
+.env.*
