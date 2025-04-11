@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     domain: str
     admin_ids: frozenset[int]
 
-    run: RunConfig
+    run: RunConfig = RunConfig()
     db: DatabaseConfig
     weather: WeatherConfig
 
