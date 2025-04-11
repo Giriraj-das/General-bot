@@ -18,6 +18,8 @@ RUN poetry install --without dev
 
 COPY . .
 
+RUN chmod +x entrypoint.sh
+
 USER bot
 
 EXPOSE 8000
