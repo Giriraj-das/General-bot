@@ -7,6 +7,8 @@ services:
 
   nginx:
     image: nginx:alpine
+    environment:
+      DOMAIN: ${DOMAIN}
     ports:
       - "80:80"
       - "443:443"
@@ -19,9 +21,10 @@ services:
 
   certbot:
     image: certbot/certbot
+    environment:
+      EMAIL: ${EMAIL}
+      DOMAIN: ${DOMAIN}
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     command: certonly --webroot --webroot-path=/var/www/certbot --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
-    env_file:
-      - .env
