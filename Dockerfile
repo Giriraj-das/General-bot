@@ -16,4 +16,6 @@ RUN poetry install --without dev
 
 COPY . .
 
+EXPOSE 8000
+
 CMD ["python", "main.py"]
