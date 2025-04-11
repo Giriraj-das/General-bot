@@ -2,7 +2,6 @@ from datetime import datetime
 from re import Match
 
 from aiogram import Router, types, F
-from aiogram.enums import ParseMode
 from magic_filter import RegexpMode
 
 from config import settings
@@ -52,7 +51,6 @@ async def milk_sold_handler(message: types.Message):
              '    25.05.2025\n'
              'Or select a frequently used preset ↓',
         reply_markup=sales_keyboard(),
-        parse_mode=ParseMode.HTML
     )
 
 
