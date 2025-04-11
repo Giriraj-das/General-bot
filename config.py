@@ -2,6 +2,11 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class RunConfig(BaseModel):
+    host: str
+    port: int
+
+
 class DatabaseConfig(BaseModel):
     url: str
     echo: bool = False
@@ -26,8 +31,14 @@ class Settings(BaseSettings):
         env_nested_delimiter='__',
     )
     token: str
+    base_webhook_url: str
+    webhook_path: str
+    webhook_secret: str
+    email: str
+    domain: str
     admin_ids: frozenset[int]
 
+    run: RunConfig
     db: DatabaseConfig
     weather: WeatherConfig
 
