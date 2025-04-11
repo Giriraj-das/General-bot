@@ -25,4 +25,5 @@ RUN mkdir -p /app/data && \
 
 USER bot
 
+EXPOSE 8000
 CMD ["./entrypoint.sh"]
