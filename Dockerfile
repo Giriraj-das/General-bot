@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-RUN groupadd -r deploy && useradd -r -g deploy bot
+RUN groupadd -g 1001 deploy && useradd -u 1001 -g deploy bot
 
 WORKDIR /app
 
