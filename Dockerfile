@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+RUN groupadd -r bot && useradd -r -g bot bot
+
 WORKDIR /app
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -16,8 +18,11 @@ RUN poetry install --without dev
 
 COPY . .
 
-RUN chmod +x entrypoint.sh
+RUN mkdir -p /app/data && \
+    chmod 755 /app/data && \
+    chown -R bot:bot /app && \
+    chmod +x entrypoint.sh
 
-EXPOSE 8000
+USER bot
 
 CMD ["./entrypoint.sh"]
