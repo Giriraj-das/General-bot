@@ -24,7 +24,7 @@ def milk_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='Took'), KeyboardButton(text='Sold')],
-            [KeyboardButton(text='Monthly report')],
+            [KeyboardButton(text='Current month report')],
         ],
         resize_keyboard=True,
         input_field_placeholder='Select item...'
