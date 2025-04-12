@@ -60,7 +60,7 @@ async def milk_sold_handler(message: types.Message):
 )
 async def price_question_handler(message: types.Message):
     await message.answer(
-        text='Enter price per liter like this:'
+        text='Enter price per liter like this:\n'
              '"Liter=35"',
     )
 
