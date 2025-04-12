@@ -1,13 +1,13 @@
-from datetime import datetime
+from datetime import datetime, date
 from re import Match
 
 from aiogram import Router, types, F
 from magic_filter import RegexpMode
 
 from config import settings
-from models import Location
+from models import Location, Supply
 from routers.kb import milk_keyboard, cities_keyboard, sales_keyboard
-from services.milk import create_milk_supply_service, create_milk_sold_service
+from services.milk import create_milk_supply_service, create_milk_sold_service, get_supplies_service
 from services.weather import create_location_service, get_locations_list
 
 router = Router(name=__name__)
@@ -52,6 +52,27 @@ async def milk_sold_handler(message: types.Message):
              'Or select a frequently used preset ↓',
         reply_markup=sales_keyboard(),
     )
+
+
+@router.message(
+    F.from_user.id.in_(settings.admin_ids),
+    F.text.lower() == 'current month report',
+)
+async def price_question_handler(message: types.Message):
+    await message.answer(
+        text='Enter price per liter like this:'
+             '"Liter=35"',
+    )
+
+
+@router.message(
+    F.from_user.id.in_(settings.admin_ids),
+    F.text.regexp(r'^[Ll]iter=(\d+)$', mode=RegexpMode.MATCH).as_('price')
+)
+async def current_month_report_handler(message: types.Message, price: Match[str]):
+    price: str = price.group(1)
+    text: str = await get_supplies_service(price=int(price))
+    await message.answer(text=text)
 
 
 @router.message(

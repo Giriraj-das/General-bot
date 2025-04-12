@@ -1,12 +1,41 @@
 from datetime import datetime, date
 
-from db_connections.milk import get_supply, create_supply, update_supply, create_sale
-from models import db_helper, Supply
+from db_connections.milk import (
+    get_supply,
+    create_supply,
+    update_supply,
+    create_sale,
+    get_supplies_by_current_month,
+)
+from models import db_helper, Supply, Sale
+
+
+async def get_supplies_service(price: int) -> str:
+    today = date.today()
+    first_day_of_current_month = date(today.year, today.month, 1)
+
+    supplies: list[Supply] = []
+    async for session in db_helper.session_dependency():
+        supplies = await get_supplies_by_current_month(
+            session=session,
+            first_day=first_day_of_current_month,
+        )
+
+    text: str = (f'<b>{today.strftime('%B')}</b>\n'
+                 f'1 liter = {price}₹\n\n')
+    total_quantity: int = 0
+    for supply in supplies:
+        text += f'{supply.current_date.day} - {supply.quantity}\n'
+        total_quantity += supply.quantity
+    text += f'\n<b>{total_quantity} liters</b>\n'
+    text += f'<b>{total_quantity * price} ₹</b>'
+
+    return text
 
 
 async def create_milk_supply_service(
         supply: str,
-):
+) -> Supply:
     parts: list[str] = supply.split()
 
     create_data: dict[str, float | date] = {
@@ -44,7 +73,7 @@ async def create_milk_supply_service(
 
 async def create_milk_sold_service(
         sale: str,
-):
+) -> Sale:
     parts: list[str] = sale.split('\n')
 
     sale_data: dict[str, str | float | int | date] = {

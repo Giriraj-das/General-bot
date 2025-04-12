@@ -7,6 +7,18 @@ from sqlalchemy.orm import joinedload, selectinload
 from models import Supply, Sale, BuyerName
 
 
+async def get_supplies_by_current_month(
+        session: AsyncSession,
+        first_day: date,
+) -> list[Supply]:
+    supplies = await session.scalars(
+        select(Supply)
+        .filter(Supply.current_date >= first_day)
+        .order_by(Supply.current_date)
+    )
+    return list(supplies.all())
+
+
 async def get_supply(
         session: AsyncSession,
         current_date: date,
@@ -35,7 +47,7 @@ async def update_supply(
         session: AsyncSession,
         supply: Supply,
         supply_data: dict[str, float],
-):
+) -> Supply:
     for name, value in supply_data.items():
         setattr(supply, name, value)
     await session.commit()
