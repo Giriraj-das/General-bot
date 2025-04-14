@@ -73,8 +73,10 @@ async def milk_sold_handler(message: types.Message):
 )
 async def supplies_report_handler(message: types.Message):
     await message.answer(
-        text='Enter price per liter like this:\n'
-             '<i>"Liter=35"</i>\n'
+        text='Enter <b>price</b> per liter, <b>start day</b>, <b>end day</b> like this:\n'
+             '<i>"Liter=35\n'
+             '01.04.2025\n'
+             '30.04.2025"</i>\n'
              'Or select a frequently used preset ⬇️',
         reply_markup=supplies_report_keyboard(),
     )
@@ -111,6 +113,7 @@ async def general_report_handler(message: types.Message):
 
 
 @router.message(
+    F.from_user.id.in_(settings.admin_ids),
     F.text.regexp(
         r'^(\d{2}\.\d{2}\.\d{4})\n'
         r'(\d{2}\.\d{2}\.\d{4})$',
@@ -126,6 +129,7 @@ async def supplies_general_report_handler(message: types.Message, dates: Match[s
 
 
 @router.message(
+    F.from_user.id.in_(settings.admin_ids),
     F.text.regexp(
         r'^([a-zA-Z ]+)\n'
         r'(\d{2}\.\d{2}\.\d{4})\n'
@@ -215,16 +219,18 @@ async def show_cities_list_handler(message: types.Message):
 
 
 @router.message(
-    F.text.regexp(r'^(.+?)\n(-?\d+\.\d+)\n(-?\d+\.\d+)$', mode=RegexpMode.MATCH).as_('location_string'),
+    F.text.regexp(
+        r'^([a-zA-Z ]+)\n(-?\d+\.\d+)\n(-?\d+\.\d+)$',
+        mode=RegexpMode.MATCH,
+    ).as_('match'),
 )
-async def create_location_handler(message: types.Message, location_string: Match[str]):
-    location_string: str = location_string.group()
-    await create_location_service(
-        location_string=location_string,
+async def create_location_handler(message: types.Message, match: Match[str]):
+    location: Location = await create_location_service(
+        match=match,
         message=message,
     )
     locations: list[Location] = await get_locations_list(user_tg_id=message.from_user.id)
     await message.reply(
-        'Done',
+        text=f'You created {location.city} {location.latitude} {location.longitude}',
         reply_markup=cities_keyboard(locations=locations),
     )
