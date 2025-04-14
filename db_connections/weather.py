@@ -40,10 +40,12 @@ async def create_location(
         select(Location)
         .where(Location.city == location_data['city'])
     )
-    if not location:
+    if location is None:
         location = Location(**location_data)
         session.add(location)
         await session.flush()
 
     user.locations.append(location)
     await session.commit()
+
+    return location
