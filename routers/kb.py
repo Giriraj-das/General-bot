@@ -11,7 +11,7 @@ from aiogram.types import (
 from models import Location
 
 
-def current_month():
+def current_month() -> tuple[str, str]:
     """Returns first and last days of current month."""
     today: date = date.today()
     first_day: date = today.replace(day=1)
@@ -20,7 +20,7 @@ def current_month():
         month=today.month,
         day=calendar.monthrange(today.year, today.month)[1],
     )
-    return first_day, last_day
+    return first_day.strftime('%d.%m.%Y'), last_day.strftime('%d.%m.%Y')
 
 
 def start_keyboard() -> ReplyKeyboardMarkup:
