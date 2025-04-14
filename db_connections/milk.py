@@ -66,25 +66,34 @@ async def create_sale(
         select(BuyerName)
         .where(BuyerName.name == sale_data['name'])
     )
-    if not buyer:
+    if buyer is None:
         buyer = BuyerName(name=sale_data['name'])
         session.add(buyer)
         await session.flush()
 
-    sale = Sale(
-        buyer_name_id=buyer.id,
-        quantity=sale_data['quantity'],
-        price=sale_data['price'],
+    sale: Sale | None = await session.scalar(
+        select(Sale)
+        .where(
+            Sale.buyer_name_id == buyer.id,
+            Sale.quantity == sale_data['quantity'],
+            Sale.price == sale_data['price'],
+        )
     )
-    session.add(sale)
-    await session.flush()
+    if sale is None:
+        sale = Sale(
+            buyer_name_id=buyer.id,
+            quantity=sale_data['quantity'],
+            price=sale_data['price'],
+        )
+        session.add(sale)
+        await session.flush()
 
     supply: Supply | None = await session.scalar(
         select(Supply)
-        .options(joinedload(Supply.sales))
         .where(Supply.current_date == sale_data['current_date'])
+        .options(joinedload(Supply.sales))
     )
-    if not supply:
+    if supply is None:
         supply = Supply(current_date=sale_data['current_date'])
         session.add(supply)
 
