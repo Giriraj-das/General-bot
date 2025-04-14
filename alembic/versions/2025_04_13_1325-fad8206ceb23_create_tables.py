@@ -1,8 +1,8 @@
 """Create tables
 
-Revision ID: 2df85613e627
+Revision ID: fad8206ceb23
 Revises:
-Create Date: 2025-04-11 16:14:24.817234
+Create Date: 2025-04-13 13:25:55.159376
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "2df85613e627"
+revision: str = "fad8206ceb23"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -72,6 +72,12 @@ def upgrade() -> None:
             name=op.f("fk_sales_buyer_name_id_buyer_names"),
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_sales")),
+        sa.UniqueConstraint(
+            "buyer_name_id",
+            "price",
+            "quantity",
+            name=op.f("uq_sales_buyer_name_id_price_quantity"),
+        ),
     )
     op.create_table(
         "user_location",

@@ -25,6 +25,8 @@ class Supply(Base):
 
 
 class Sale(Base):
+    __table_args__ = (UniqueConstraint('buyer_name_id', 'price', 'quantity'),)
+
     buyer_name_id: Mapped[int] = mapped_column(ForeignKey('buyer_names.id'))
     price: Mapped[int] = mapped_column(default=0, server_default='0')
     quantity: Mapped[float]
