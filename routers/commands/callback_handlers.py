@@ -5,7 +5,12 @@ from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from magic_filter import RegexpMode
 
-from services.milk import create_milk_sold_service
+from models import Sale
+from services.milk import (
+    create_milk_sold_service,
+    get_supplies_between_dates_service,
+    get_supplies_by_buyer_name_between_dates_service, supplies_general_report_service,
+)
 from utils import get_weather
 
 router = Router(name=__name__)
@@ -28,7 +33,7 @@ async def weather_by_city(callback: CallbackQuery):
 
 @router.callback_query(
     F.data.regexp(
-        r'^([A-Za-z\s]+)\n'
+        r'^([A-Za-z ]+)\n'
         r'(\d+(\.\d{1,2})?)\n'
         r'(\d+)$',
         mode=RegexpMode.MATCH,
@@ -36,7 +41,7 @@ async def weather_by_city(callback: CallbackQuery):
 )
 async def milk_sold_getter_callback(callback: CallbackQuery, match: Match[str]):
     try:
-        saved_sale = await create_milk_sold_service(match=match)
+        saved_sale: Sale = await create_milk_sold_service(match=match)
         await callback.message.answer(
             text='Your input has been saved as\n'
                  f'{saved_sale.name.name}\n'
@@ -47,9 +52,63 @@ async def milk_sold_getter_callback(callback: CallbackQuery, match: Match[str]):
         await callback.message.answer(f'❌ {e}')
 
 
-@router.callback_query()
-async def weather_by_location(callback: CallbackQuery):
-    city, latitude, longitude = callback.data.split(sep='/')
+@router.callback_query(
+    F.data.regexp(
+        r'^(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('dates')
+)
+async def supplies_general_report_callback(callback: CallbackQuery, dates: Match[str]):
+    text: str = await supplies_general_report_service(
+        start_date=dates.group(1),
+        end_date=dates.group(2),
+    )
+    await callback.message.answer(text=text)
+
+
+@router.callback_query(
+    F.data.regexp(
+        r'^([a-zA-Z ]+)\n'
+        r'(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('match')
+)
+async def supplies_report_by_buyer_name_between_dates_callback(callback: CallbackQuery, match: Match[str]):
+    text: str = await get_supplies_by_buyer_name_between_dates_service(
+        name_part=match.group(1),
+        start_date=match.group(2),
+        end_date=match.group(3),
+    )
+    await callback.message.answer(text=text)
+
+
+@router.callback_query(
+    F.data.regexp(
+        r'^[Ll]iter=(\d+)\n'
+        r'(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('match')
+)
+async def supplies_report_between_dates_callback(callback: CallbackQuery, match: Match[str]):
+    text: str = await get_supplies_between_dates_service(
+        price=int(match.group(1)),
+        start_date=match.group(2),
+        end_date=match.group(3),
+    )
+    await callback.message.answer(text=text)
+
+
+@router.callback_query(
+    F.data.regexp(
+        r'^([a-zA-Z ]+)\n(-?\d+\.\d+)\n(-?\d+\.\d+)$',
+        mode=RegexpMode.MATCH,
+    ).as_('match'),
+)
+async def weather_by_location_callback(callback: CallbackQuery, match: Match[str]):
+    city, latitude, longitude = match.group(1), match.group(2), match.group(3)
     weather = await get_weather(latitude=latitude, longitude=longitude)
     await callback.message.answer(
         text=f'The weather of {city.strip()}\n'
