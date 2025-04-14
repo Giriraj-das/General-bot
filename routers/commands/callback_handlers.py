@@ -103,7 +103,7 @@ async def supplies_report_between_dates_callback(callback: CallbackQuery, match:
 
 @router.callback_query(
     F.data.regexp(
-        r'^([a-zA-Z ]+)\n(-?\d+\.\d+)\n(-?\d+\.\d+)$',
+        r'^([a-zA-Z ]+)/(-?\d+\.\d+)/(-?\d+\.\d+)$',
         mode=RegexpMode.MATCH,
     ).as_('match'),
 )
