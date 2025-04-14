@@ -2,21 +2,9 @@ from datetime import date
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload, selectinload, with_loader_criteria
 
 from models import Supply, Sale, BuyerName
-
-
-async def get_supplies_by_current_month(
-        session: AsyncSession,
-        first_day: date,
-) -> list[Supply]:
-    supplies = await session.scalars(
-        select(Supply)
-        .filter(Supply.current_date >= first_day)
-        .order_by(Supply.current_date)
-    )
-    return list(supplies.all())
 
 
 async def get_supply(
@@ -105,3 +93,44 @@ async def create_sale(
         .options(selectinload(Sale.name))
         .where(Sale.id == sale.id)
     )
+
+
+async def get_supplies_between_dates(
+        session: AsyncSession,
+        start_date: date,
+        end_date: date,
+) -> list[Supply]:
+    supplies = await session.scalars(
+        select(Supply)
+        .filter(Supply.current_date.between(start_date, end_date))
+        .order_by(Supply.current_date)
+    )
+    return list(supplies.all())
+
+
+async def get_supplies_by_name_between_dates(
+        session: AsyncSession,
+        name_part: str,
+        start_date: date,
+        end_date: date,
+) -> list[Supply]:
+    name_filter = BuyerName.name.ilike(f"%{name_part}%")
+    result = await session.execute(
+        select(Supply)
+        .join(Supply.sales)
+        .join(Sale.name)
+        .where(
+            Supply.current_date.between(start_date, end_date),
+            name_filter,
+        )
+        .order_by(Supply.current_date)
+        .options(
+            joinedload(Supply.sales).joinedload(Sale.name),
+            with_loader_criteria(
+                Sale,
+                lambda cls: cls.name.has(name_filter),
+                include_aliases=True,
+            )
+        )
+    )
+    return list(result.unique().scalars())

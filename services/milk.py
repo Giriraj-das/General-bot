@@ -1,36 +1,15 @@
 from datetime import datetime, date
+from decimal import Decimal
 
 from db_connections.milk import (
     get_supply,
     create_supply,
     update_supply,
     create_sale,
-    get_supplies_by_current_month,
+    get_supplies_between_dates,
+    get_supplies_by_name_between_dates,
 )
 from models import db_helper, Supply, Sale
-
-
-async def get_supplies_service(price: int) -> str:
-    today = date.today()
-    first_day_of_current_month = date(today.year, today.month, 1)
-
-    supplies: list[Supply] = []
-    async for session in db_helper.session_dependency():
-        supplies = await get_supplies_by_current_month(
-            session=session,
-            first_day=first_day_of_current_month,
-        )
-
-    text: str = (f'<b>{today.strftime('%B')}</b>\n'
-                 f'1 liter = {price}₹\n\n')
-    total_quantity: int = 0
-    for supply in supplies:
-        text += f'{supply.current_date.day} - {supply.quantity}\n'
-        total_quantity += supply.quantity
-    text += f'\n<b>{total_quantity} liters</b>\n'
-    text += f'<b>{total_quantity * price} ₹</b>'
-
-    return text
 
 
 async def create_milk_supply_service(
@@ -94,3 +73,72 @@ async def create_milk_sold_service(
             session=session,
             sale_data=sale_data,
         )
+
+
+async def get_supplies_between_dates_service(
+        price: int,
+        start_date: str,
+        end_date: str,
+) -> str:
+    start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
+    end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
+
+    supplies: list[Supply] = []
+    async for session in db_helper.session_dependency():
+        supplies = await get_supplies_between_dates(
+            session=session,
+            start_date=start_date_db,
+            end_date=end_date_db,
+        )
+
+    price = Decimal(str(price))
+    text: str = (f'<b>From {start_date} to {end_date}</b>\n'
+                 f'<i>1 liter = {price}₹</i>\n\n')
+    total_quantity: Decimal = Decimal('0.00')
+
+    for supply in supplies:
+        quantity: Decimal = Decimal(str(supply.quantity))
+        text += f'{supply.current_date.day} - {quantity}\n'
+        total_quantity += quantity
+
+    text += f'\n<b>{total_quantity} liters</b>\n'
+    text += f'<b>{total_quantity * price} ₹</b>'
+    return text
+
+
+async def get_supplies_by_buyer_name_between_dates_service(
+        name_part: str,
+        start_date: str,
+        end_date: str,
+) -> str:
+    start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
+    end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
+
+    supplies: list[Supply] = []
+    async for session in db_helper.session_dependency():
+        supplies = await get_supplies_by_name_between_dates(
+            session=session,
+            name_part=name_part,
+            start_date=start_date_db,
+            end_date=end_date_db,
+        )
+
+    text: str = f'<b>From {start_date} to {end_date}</b>\n\n'
+    total_quantity: Decimal = Decimal('0.00')
+    total_price: Decimal = Decimal('0.00')
+
+    for supply in supplies:
+        sales: str = ''
+        for sale in supply.sales:
+            price: Decimal = Decimal(str(sale.price))
+            quantity: Decimal = Decimal(str(sale.quantity))
+
+            sales += f'            {sale.name.name} {price}₹ {quantity}l\n'
+            total_quantity += quantity
+            total_price += price * quantity
+
+        text += f'🔹 {supply.current_date}\n{sales}'
+
+    text += f'\n<b>{total_quantity} liters</b>\n'
+    text += f'<b>{total_price} ₹</b>'
+    return text
