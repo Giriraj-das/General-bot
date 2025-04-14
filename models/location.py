@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from models import Base
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Location(Base):
-    city: Mapped[str]
+    city: Mapped[str] = mapped_column(unique=True)
     latitude: Mapped[float]
     longitude: Mapped[float]
 
