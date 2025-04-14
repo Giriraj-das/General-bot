@@ -20,7 +20,6 @@ async def handle_start(message: types.Message):
     await message.answer(
         text=text,
         reply_markup=start_keyboard(),
-        parse_mode=ParseMode.HTML
     )
 
 
@@ -34,5 +33,4 @@ async def handle_help(message: types.Message):
     await message.answer(
         text=text,
         reply_markup=start_keyboard(),
-        parse_mode=ParseMode.HTML,
     )
