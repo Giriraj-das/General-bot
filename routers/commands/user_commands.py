@@ -1,13 +1,18 @@
-from datetime import datetime, date
+from datetime import datetime
 from re import Match
 
 from aiogram import Router, types, F
 from magic_filter import RegexpMode
 
 from config import settings
-from models import Location, Supply
+from models import Location
 from routers.kb import milk_keyboard, cities_keyboard, sales_keyboard
-from services.milk import create_milk_supply_service, create_milk_sold_service, get_supplies_service
+from services.milk import (
+    create_milk_supply_service,
+    create_milk_sold_service,
+    get_supplies_between_dates_service,
+    get_supplies_by_buyer_name_between_dates_service,
+)
 from services.weather import create_location_service, get_locations_list
 
 router = Router(name=__name__)
@@ -66,19 +71,44 @@ async def price_question_handler(message: types.Message):
 
 
 @router.message(
-    F.from_user.id.in_(settings.admin_ids),
-    F.text.regexp(r'^[Ll]iter=(\d+)$', mode=RegexpMode.MATCH).as_('price')
+    F.text.regexp(
+        r'^([a-zA-Z ]+)\n'
+        r'(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('match')
 )
-async def current_month_report_handler(message: types.Message, price: Match[str]):
-    price: str = price.group(1)
-    text: str = await get_supplies_service(price=int(price))
+async def supplies_report_by_buyer_name_between_dates(message: types.Message, match: Match[str]):
+    text: str = await get_supplies_by_buyer_name_between_dates_service(
+        name_part=match.group(1),
+        start_date=match.group(2),
+        end_date=match.group(3),
+    )
     await message.answer(text=text)
 
 
 @router.message(
     F.from_user.id.in_(settings.admin_ids),
     F.text.regexp(
-        r'^([A-Za-z\s]+)\n'
+        r'^[Ll]iter=(\d+)\n'
+        r'(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('match')
+)
+async def supplies_report_between_dates(message: types.Message, match: Match[str]):
+    text: str = await get_supplies_between_dates_service(
+        price=int(match.group(1)),
+        start_date=match.group(2),
+        end_date=match.group(3),
+    )
+    await message.answer(text=text)
+
+
+@router.message(
+    F.from_user.id.in_(settings.admin_ids),
+    F.text.regexp(
+        r'^([A-Za-z ]+)\n'
         r'(\d+(\.\d{1,2})?)\n'
         r'(\d+)'
         r'(\n\d{2}\.\d{2}\.\d{4})?$',
