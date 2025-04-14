@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from decimal import Decimal
+from re import Match
 
 from db_connections.milk import (
     get_supply,
@@ -52,19 +53,19 @@ async def create_milk_supply_service(
 
 
 async def create_milk_sold_service(
-        sale: str,
+        match: Match[str],
 ) -> Sale:
-    parts: list[str] = sale.split('\n')
-
     sale_data: dict[str, str | float | int | date] = {
-        'name': parts[0],
-        'quantity': float(parts[1]),
-        'price': int(parts[2]),
+        'name': match.group(1),
+        'quantity': float(match.group(2)),
+        'price': int(match.group(4)),
         'current_date': date.today(),
     }
-    if len(parts) == 4:
+    current_date: str | None = match.group(5) if match.lastindex >= 5 else None
+
+    if current_date is not None:
         try:
-            entered_date: date = datetime.strptime(parts[3], '%d.%m.%Y').date()
+            entered_date: date = datetime.strptime(current_date, '%d.%m.%Y').date()
             sale_data['current_date'] = entered_date
         except ValueError:
             raise ValueError('Incorrect date')

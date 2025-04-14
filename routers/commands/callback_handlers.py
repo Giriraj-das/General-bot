@@ -32,12 +32,11 @@ async def weather_by_city(callback: CallbackQuery):
         r'(\d+(\.\d{1,2})?)\n'
         r'(\d+)$',
         mode=RegexpMode.MATCH,
-    ).as_('sold'),
+    ).as_('match'),
 )
-async def milk_sold_getter_callback(callback: CallbackQuery, sold: Match[str]):
-    sale: str = sold.group()
+async def milk_sold_getter_callback(callback: CallbackQuery, match: Match[str]):
     try:
-        saved_sale = await create_milk_sold_service(sale=sale)
+        saved_sale = await create_milk_sold_service(match=match)
         await callback.message.answer(
             text='Your input has been saved as\n'
                  f'{saved_sale.name.name}\n'

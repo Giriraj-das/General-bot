@@ -5,7 +5,7 @@ from aiogram import Router, types, F
 from magic_filter import RegexpMode
 
 from config import settings
-from models import Location
+from models import Location, Sale
 from routers.kb import (
     milk_keyboard,
     cities_keyboard,
@@ -168,12 +168,11 @@ async def supplies_report_between_dates(message: types.Message, match: Match[str
         r'(\d+)'
         r'(\n\d{2}\.\d{2}\.\d{4})?$',
         mode=RegexpMode.MATCH,
-    ).as_('sold'),
+    ).as_('match'),
 )
-async def milk_sold_getter_handler(message: types.Message, sold: Match[str]):
-    sale: str = sold.group()
+async def milk_sold_getter_handler(message: types.Message, match: Match[str]):
     try:
-        saved_sale = await create_milk_sold_service(sale=sale)
+        saved_sale: Sale = await create_milk_sold_service(match=match)
         await message.answer(
             text='Your input has been saved as\n'
                  f'{saved_sale.name.name}\n'
