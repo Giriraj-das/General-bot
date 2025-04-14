@@ -105,7 +105,7 @@ async def get_supplies_between_dates(
         .filter(Supply.current_date.between(start_date, end_date))
         .order_by(Supply.current_date)
     )
-    return list(supplies.all())
+    return list(supplies)
 
 
 async def get_supplies_by_name_between_dates(
@@ -134,3 +134,23 @@ async def get_supplies_by_name_between_dates(
         )
     )
     return list(result.unique().scalars())
+
+
+async def get_supplies_with_all_sales(
+        session: AsyncSession,
+        start_date: date,
+        end_date: date,
+) -> list[Supply]:
+    supplies = await session.execute(
+        select(Supply)
+        .join(Supply.sales)
+        .join(Sale.name)
+        .where(
+            Supply.current_date.between(start_date, end_date),
+        )
+        .order_by(Supply.current_date)
+        .options(
+            joinedload(Supply.sales).joinedload(Sale.name),
+        )
+    )
+    return list(supplies.unique().scalars())

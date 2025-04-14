@@ -6,12 +6,20 @@ from magic_filter import RegexpMode
 
 from config import settings
 from models import Location
-from routers.kb import milk_keyboard, cities_keyboard, sales_keyboard
+from routers.kb import (
+    milk_keyboard,
+    cities_keyboard,
+    sales_keyboard,
+    supplies_report_keyboard,
+    sales_report_by_name_keyboard,
+    general_report_keyboard,
+)
 from services.milk import (
     create_milk_supply_service,
     create_milk_sold_service,
     get_supplies_between_dates_service,
     get_supplies_by_buyer_name_between_dates_service,
+    supplies_general_report_service,
 )
 from services.weather import create_location_service, get_locations_list
 
@@ -54,20 +62,67 @@ async def milk_sold_handler(message: types.Message):
              '    2.3\n'
              '    100\n'
              '    25.05.2025\n'
-             'Or select a frequently used preset ↓',
+             'Or select a frequently used preset ⬇️',
         reply_markup=sales_keyboard(),
     )
 
 
 @router.message(
     F.from_user.id.in_(settings.admin_ids),
-    F.text.lower() == 'current month report',
+    F.text.lower() == 'supplies report',
 )
-async def price_question_handler(message: types.Message):
+async def supplies_report_handler(message: types.Message):
     await message.answer(
         text='Enter price per liter like this:\n'
-             '"Liter=35"',
+             '<i>"Liter=35"</i>\n'
+             'Or select a frequently used preset ⬇️',
+        reply_markup=supplies_report_keyboard(),
     )
+
+
+@router.message(
+    F.from_user.id.in_(settings.admin_ids),
+    F.text.lower() == 'sales report by name',
+)
+async def sales_report_by_name_handler(message: types.Message):
+    await message.answer(
+        text='Enter buyer <b>name</b> or his part,\n'
+             '<b>start day</b>, <b>end day</b> like this:\n'
+             '<i>"Murari\n'
+             '01.04.2025\n'
+             '30.04.2025"</i>\n'
+             'Or select a frequently used preset ⬇️',
+        reply_markup=sales_report_by_name_keyboard(),
+    )
+
+
+@router.message(
+    F.from_user.id.in_(settings.admin_ids),
+    F.text.lower() == 'general report',
+)
+async def general_report_handler(message: types.Message):
+    await message.answer(
+        text='Enter <b>start day</b>, <b>end day</b> like this:\n'
+             '<i>"01.04.2025\n'
+             '30.04.2025"</i>\n'
+             'Or select a frequently used preset ⬇️',
+        reply_markup=general_report_keyboard(),
+    )
+
+
+@router.message(
+    F.text.regexp(
+        r'^(\d{2}\.\d{2}\.\d{4})\n'
+        r'(\d{2}\.\d{2}\.\d{4})$',
+        mode=RegexpMode.MATCH,
+    ).as_('dates')
+)
+async def supplies_general_report_handler(message: types.Message, dates: Match[str]):
+    text: str = await supplies_general_report_service(
+        start_date=dates.group(1),
+        end_date=dates.group(2),
+    )
+    await message.answer(text=text)
 
 
 @router.message(

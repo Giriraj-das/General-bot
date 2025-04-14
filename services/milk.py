@@ -8,6 +8,7 @@ from db_connections.milk import (
     create_sale,
     get_supplies_between_dates,
     get_supplies_by_name_between_dates,
+    get_supplies_with_all_sales,
 )
 from models import db_helper, Supply, Sale
 
@@ -141,4 +142,42 @@ async def get_supplies_by_buyer_name_between_dates_service(
 
     text += f'\n<b>{total_quantity} liters</b>\n'
     text += f'<b>{total_price} ₹</b>'
+    return text
+
+
+async def supplies_general_report_service(
+        start_date: str,
+        end_date: str,
+) -> str:
+    start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
+    end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
+
+    supplies: list[Supply] = []
+    async for session in db_helper.session_dependency():
+        supplies = await get_supplies_with_all_sales(
+            session=session,
+            start_date=start_date_db,
+            end_date=end_date_db,
+        )
+
+    text: str = f'<b>From {start_date} to {end_date}</b>\n\n'
+    supply_total_quantity: Decimal = Decimal('0.00')
+    sale_total_quantity: Decimal = Decimal('0.00')
+
+    for supply in supplies:
+        sales: str = ''
+        supply_quantity: Decimal = Decimal(str(supply.quantity))
+
+        for sale in supply.sales:
+            quantity: Decimal = Decimal(str(sale.quantity))
+
+            sales += f'            {sale.name.name} {quantity}l\n'
+            sale_total_quantity += quantity
+
+        text += f'🔹 <b>{supply.current_date} {supply_quantity}l</b>\n{sales}'
+        supply_total_quantity += supply_quantity
+
+    text += f'\n<b>Supplies {supply_total_quantity} liters</b>'
+    text += f'\n<b>Sales {sale_total_quantity} liters</b>'
+    text += f'\n<b>Rest {supply_total_quantity - sale_total_quantity} liters</b>'
     return text
