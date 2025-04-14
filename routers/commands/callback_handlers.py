@@ -5,14 +5,13 @@ from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from magic_filter import RegexpMode
 
-from routers.kb import add_city
 from services.milk import create_milk_sold_service
 from utils import get_weather
 
 router = Router(name=__name__)
 
 
-@router.callback_query(F.data == add_city)
+@router.callback_query(F.data == 'add_city')
 async def weather_by_city(callback: CallbackQuery):
 
     await callback.message.answer(
