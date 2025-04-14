@@ -24,7 +24,8 @@ def milk_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='Took'), KeyboardButton(text='Sold')],
-            [KeyboardButton(text='Current month report')],
+            [KeyboardButton(text='Supplies report'), KeyboardButton(text='Sales report by name')],
+            [KeyboardButton(text='General report')],
         ],
         resize_keyboard=True,
         input_field_placeholder='Select item...'
@@ -52,5 +53,9 @@ def sales_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(
             text='Indians (1l 100r today)',
             callback_data='Indians\n1\n100',
+        )],
+        [InlineKeyboardButton(
+            text='Achyuta Dharma (1l 100r today)',
+            callback_data='Achyuta Dharma\n1\n100',
         )],
     ])
