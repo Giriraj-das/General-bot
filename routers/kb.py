@@ -78,10 +78,12 @@ def sales_keyboard() -> InlineKeyboardMarkup:
 
 
 def supplies_report_keyboard() -> InlineKeyboardMarkup:
+    first_day, last_day = current_month()
+
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text='35₹ per liter',
-            callback_data='liter=35',
+            text='35₹ per liter (current month)',
+            callback_data=f'liter=35\n{first_day}\n{last_day}',
         )],
     ])
 
