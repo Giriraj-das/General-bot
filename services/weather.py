@@ -1,3 +1,5 @@
+from re import Match
+
 from aiogram import types
 
 from db_connections.weather import (
@@ -14,14 +16,14 @@ async def get_locations_list(user_tg_id: int) -> list[Location]:
             session=session,
             user_tg_id=user_tg_id,
         )
-        return user.locations if user else []
+        return user.locations if user is not None else []
 
 
 async def create_location_service(
-        location_string: str,
+        match: Match[str],
         message: types.Message,
-):
-    city, latitude, longitude = location_string.split('\n')
+) -> Location:
+    city, latitude, longitude = match.group(1), match.group(2), match.group(3)
     location_data = {
         'city': city,
         'latitude': float(latitude),
@@ -39,12 +41,12 @@ async def create_location_service(
             session=session,
             user_tg_id=message.from_user.id,
         )
-        if not user:
+        if user is None:
             user = await create_user(
                 session=session,
                 user_data=user_data,
             )
-        await create_location(
+        return await create_location(
             session=session,
             user=user,
             location_data=location_data,
