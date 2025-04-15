@@ -1,5 +1,5 @@
 import calendar
-from datetime import date
+from datetime import date, timedelta
 
 from aiogram.types import (
     ReplyKeyboardMarkup,
@@ -21,6 +21,13 @@ def current_month() -> tuple[str, str]:
         day=calendar.monthrange(today.year, today.month)[1],
     )
     return first_day.strftime('%d.%m.%Y'), last_day.strftime('%d.%m.%Y')
+
+
+def last_week() -> tuple[str, str]:
+    """Returns week ago day and today."""
+    today: date = date.today()
+    seven_days_ago: date = date.today() - timedelta(days=7)
+    return seven_days_ago.strftime('%d.%m.%Y'), today.strftime('%d.%m.%Y')
 
 
 def start_keyboard() -> ReplyKeyboardMarkup:
@@ -109,10 +116,15 @@ def sales_report_by_name_keyboard() -> InlineKeyboardMarkup:
 
 def general_report_keyboard() -> InlineKeyboardMarkup:
     first_day, last_day = current_month()
+    seven_days_ago, today = last_week()
 
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text='Current month',
             callback_data=f'{first_day}\n{last_day}',
+        )],
+        [InlineKeyboardButton(
+            text='Last week',
+            callback_data=f'{seven_days_ago}\n{today}',
         )],
     ])
