@@ -170,7 +170,7 @@ async def supplies_report_between_dates(message: types.Message, match: Match[str
         r'^([A-Za-z ]+)\n'
         r'(\d+(\.\d{1,2})?)\n'
         r'(\d+)'
-        r'(\n\d{2}\.\d{2}\.\d{4})?$',
+        r'(\n(\d{2}\.\d{2}\.\d{4}))?$',
         mode=RegexpMode.MATCH,
     ).as_('match'),
 )
