@@ -61,9 +61,9 @@ async def create_milk_sold_service(
         'price': int(match.group(4)),
         'current_date': date.today(),
     }
-    current_date: str | None = match.group(5) if match.lastindex >= 5 else None
+    current_date: str | None = match.group(6) if match.lastindex >= 5 else None
 
-    if current_date is not None:
+    if current_date:
         try:
             entered_date: date = datetime.strptime(current_date, '%d.%m.%Y').date()
             sale_data['current_date'] = entered_date
