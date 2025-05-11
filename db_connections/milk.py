@@ -143,8 +143,8 @@ async def get_supplies_with_all_sales(
 ) -> list[Supply]:
     supplies = await session.execute(
         select(Supply)
-        .join(Supply.sales)
-        .join(Sale.name)
+        .outerjoin(Supply.sales)
+        .outerjoin(Sale.name)
         .where(
             Supply.current_date.between(start_date, end_date),
         )
