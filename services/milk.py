@@ -81,7 +81,7 @@ async def get_supplies_between_dates_service(
         price: int,
         start_date: str,
         end_date: str,
-) -> str:
+) -> list[str]:
     start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
     end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
 
@@ -94,25 +94,30 @@ async def get_supplies_between_dates_service(
         )
 
     price = Decimal(str(price))
-    text: str = (f'<b>From {start_date} to {end_date}</b>\n'
-                 f'<i>1 liter = {price}₹</i>\n\n')
     total_quantity: Decimal = Decimal('0.00')
+    header: str = (f'<b>From {start_date} to {end_date}</b>\n'
+                   f'<i>1 liter = {price}₹</i>\n\n')
+    blocks: list[str] = [header]
 
     for supply in supplies:
         quantity: Decimal = Decimal(str(supply.quantity))
-        text += f'{supply.current_date.day} - {quantity}\n'
+        block = f'{supply.current_date.day} - {quantity}\n'
+        blocks.append(block)
         total_quantity += quantity
 
-    text += f'\n<b>{total_quantity} liters</b>\n'
-    text += f'<b>{total_quantity * price} ₹</b>'
-    return text
+    footer = (
+        f'\n<b>{total_quantity} liters</b>\n'
+        f'<b>{total_quantity * price} ₹</b>'
+    )
+    blocks.append(footer)
+    return split_blocks_by_length(blocks=blocks)
 
 
 async def get_supplies_by_buyer_name_between_dates_service(
         name_part: str,
         start_date: str,
         end_date: str,
-) -> str:
+) -> list[str]:
     start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
     end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
 
@@ -125,9 +130,10 @@ async def get_supplies_by_buyer_name_between_dates_service(
             end_date=end_date_db,
         )
 
-    text: str = f'<b>From {start_date} to {end_date}</b>\n\n'
     total_quantity: Decimal = Decimal('0.00')
     total_price: Decimal = Decimal('0.00')
+    header: str = f'<b>From {start_date} to {end_date}</b>\n\n'
+    blocks: list[str] = [header]
 
     for supply in supplies:
         sales: str = ''
@@ -139,17 +145,21 @@ async def get_supplies_by_buyer_name_between_dates_service(
             total_quantity += quantity
             total_price += price * quantity
 
-        text += f'🔹 {supply.current_date}\n{sales}'
+        block = f'🔹 {supply.current_date}\n{sales}'
+        blocks.append(block)
 
-    text += f'\n<b>{total_quantity} liters</b>\n'
-    text += f'<b>{total_price} ₹</b>'
-    return text
+    footer = (
+        f'\n<b>{total_quantity} liters</b>\n'
+        f'<b>{total_price} ₹</b>'
+    )
+    blocks.append(footer)
+    return split_blocks_by_length(blocks=blocks)
 
 
 async def supplies_general_report_service(
         start_date: str,
         end_date: str,
-) -> str:
+) -> list[str]:
     start_date_db: date = datetime.strptime(start_date, "%d.%m.%Y").date()
     end_date_db: date = datetime.strptime(end_date, "%d.%m.%Y").date()
 
@@ -161,9 +171,10 @@ async def supplies_general_report_service(
             end_date=end_date_db,
         )
 
-    text: str = f'<b>From {start_date} to {end_date}</b>\n\n'
     supply_total_quantity: Decimal = Decimal('0.00')
     sale_total_quantity: Decimal = Decimal('0.00')
+    header: str = f'<b>From {start_date} to {end_date}</b>\n\n'
+    blocks: list[str] = [header]
 
     for supply in supplies:
         sales: str = ''
@@ -175,10 +186,29 @@ async def supplies_general_report_service(
             sales += f'            {sale.name.name} {quantity}l\n'
             sale_total_quantity += quantity
 
-        text += f'🔹 <b>{supply.current_date} {supply_quantity}l</b>\n{sales}'
+        block = f'🔹 <b>{supply.current_date} {supply_quantity}l</b>\n{sales}'
+        blocks.append(block)
         supply_total_quantity += supply_quantity
 
-    text += f'\n<b>Supplies {supply_total_quantity} liters</b>'
-    text += f'\n<b>Sales {sale_total_quantity} liters</b>'
-    text += f'\n<b>Rest {supply_total_quantity - sale_total_quantity} liters</b>'
-    return text
+    footer = (
+        f'\n<b>Supplies {supply_total_quantity} liters</b>'
+        f'\n<b>Sales {sale_total_quantity} liters</b>'
+        f'\n<b>Rest {supply_total_quantity - sale_total_quantity} liters</b>'
+    )
+    blocks.append(footer)
+    return split_blocks_by_length(blocks=blocks)
+
+
+def split_blocks_by_length(blocks: list[str], max_len: int = 4096) -> list[str]:
+    result = []
+    current = ''
+
+    for block in blocks:
+        if len(current) + len(block) > max_len:
+            result.append(current)
+            current = ''
+        current += block
+    if current:
+        result.append(current)
+
+    return result

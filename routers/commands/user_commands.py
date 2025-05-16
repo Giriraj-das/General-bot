@@ -121,11 +121,12 @@ async def general_report_handler(message: types.Message):
     ).as_('dates')
 )
 async def supplies_general_report_handler(message: types.Message, dates: Match[str]):
-    text: str = await supplies_general_report_service(
+    text_blocks: list[str] = await supplies_general_report_service(
         start_date=dates.group(1),
         end_date=dates.group(2),
     )
-    await message.answer(text=text)
+    for block in text_blocks:
+        await message.answer(text=block)
 
 
 @router.message(
@@ -138,12 +139,13 @@ async def supplies_general_report_handler(message: types.Message, dates: Match[s
     ).as_('match')
 )
 async def supplies_report_by_buyer_name_between_dates(message: types.Message, match: Match[str]):
-    text: str = await get_supplies_by_buyer_name_between_dates_service(
+    text_blocks: list[str] = await get_supplies_by_buyer_name_between_dates_service(
         name_part=match.group(1),
         start_date=match.group(2),
         end_date=match.group(3),
     )
-    await message.answer(text=text)
+    for block in text_blocks:
+        await message.answer(text=block)
 
 
 @router.message(
@@ -156,12 +158,13 @@ async def supplies_report_by_buyer_name_between_dates(message: types.Message, ma
     ).as_('match')
 )
 async def supplies_report_between_dates(message: types.Message, match: Match[str]):
-    text: str = await get_supplies_between_dates_service(
+    text_blocks: list[str] = await get_supplies_between_dates_service(
         price=int(match.group(1)),
         start_date=match.group(2),
         end_date=match.group(3),
     )
-    await message.answer(text=text)
+    for block in text_blocks:
+        await message.answer(text=block)
 
 
 @router.message(
