@@ -60,11 +60,12 @@ async def milk_sold_getter_callback(callback: CallbackQuery, match: Match[str]):
     ).as_('dates')
 )
 async def supplies_general_report_callback(callback: CallbackQuery, dates: Match[str]):
-    text: str = await supplies_general_report_service(
+    text_blocks: list[str] = await supplies_general_report_service(
         start_date=dates.group(1),
         end_date=dates.group(2),
     )
-    await callback.message.answer(text=text)
+    for block in text_blocks:
+        await callback.message.answer(text=block)
 
 
 @router.callback_query(
@@ -76,12 +77,13 @@ async def supplies_general_report_callback(callback: CallbackQuery, dates: Match
     ).as_('match')
 )
 async def supplies_report_by_buyer_name_between_dates_callback(callback: CallbackQuery, match: Match[str]):
-    text: str = await get_supplies_by_buyer_name_between_dates_service(
+    text_blocks: list[str] = await get_supplies_by_buyer_name_between_dates_service(
         name_part=match.group(1),
         start_date=match.group(2),
         end_date=match.group(3),
     )
-    await callback.message.answer(text=text)
+    for block in text_blocks:
+        await callback.message.answer(text=block)
 
 
 @router.callback_query(
@@ -93,12 +95,13 @@ async def supplies_report_by_buyer_name_between_dates_callback(callback: Callbac
     ).as_('match')
 )
 async def supplies_report_between_dates_callback(callback: CallbackQuery, match: Match[str]):
-    text: str = await get_supplies_between_dates_service(
+    text_blocks: list[str] = await get_supplies_between_dates_service(
         price=int(match.group(1)),
         start_date=match.group(2),
         end_date=match.group(3),
     )
-    await callback.message.answer(text=text)
+    for block in text_blocks:
+        await callback.message.answer(text=block)
 
 
 @router.callback_query(
